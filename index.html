@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Investing — Week 1 Study Guide</title>
+<style>
+  :root{
+    --bg:#F4F2EC; --ink:#2C2C2A; --muted:#6B6A64; --line:#E3E1D8; --card:#FFFFFF;
+    --txn:#534AB7; --txnbg:#F2F1FD;
+    --hold:#1D9E75; --holdbg:#EDF9F4;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:880px;margin:0 auto;padding:56px 20px 72px}
+  header{margin-bottom:8px}
+  .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  h1{font-size:34px;line-height:1.15;margin:0 0 12px;font-weight:800;letter-spacing:-.5px}
+  .lede{font-size:16px;color:var(--muted);max-width:620px;margin:0 0 40px}
+  .group{margin-bottom:40px}
+  .grouphead{display:flex;align-items:baseline;gap:12px;margin:0 0 4px}
+  .grouptitle{font-size:20px;font-weight:700;margin:0}
+  .pill{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:4px 10px;border-radius:999px}
+  .pill-txn{background:var(--txnbg);color:var(--txn)}
+  .pill-hold{background:var(--holdbg);color:var(--hold)}
+  .groupsub{font-size:14px;color:var(--muted);margin:4px 0 18px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:600px){.cards{grid-template-columns:1fr}h1{font-size:28px}}
+  a.card{display:block;text-decoration:none;color:inherit;background:var(--card);
+    border:1px solid var(--line);border-radius:16px;padding:22px 22px 20px;
+    transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease;position:relative}
+  a.card:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.08)}
+  a.card.txn:hover{border-color:var(--txn)}
+  a.card.hold:hover{border-color:var(--hold)}
+  .ctype{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .ctitle{font-size:18px;font-weight:700;margin:0 0 6px}
+  .cdesc{font-size:14px;color:var(--muted);margin:0 0 16px}
+  .cgo{font-size:14px;font-weight:600}
+  .card.txn .cgo{color:var(--txn)}
+  .card.hold .cgo{color:var(--hold)}
+  .extra{margin-top:8px;font-size:14px;color:var(--muted)}
+  .extra a{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px solid var(--line)}
+  .extra a:hover{border-color:var(--ink)}
+  footer{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="kicker">Property Investing · Week 1</p>
+      <h1>The real cost of owning an investment property</h1>
+      <p class="lede">A plain-English study guide to the two cost layers every property investor faces — what it costs to <strong>buy</strong>, and what it costs to <strong>hold</strong> — built as interactive mind maps and flashcards. Click into any one.</p>
+    </header>
+
+    <section class="group">
+      <div class="grouphead">
+        <h2 class="grouptitle">Transaction Costs</h2>
+        <span class="pill pill-txn">one-off · buying</span>
+      </div>
+      <p class="groupsub">The ~6% you pay on top of the price to actually buy — and why each fee exists.</p>
+      <div class="cards">
+        <a class="card txn" href="Transaction-Costs-Map.html">
+          <p class="ctype">Mind Map</p>
+          <p class="ctitle">The complete cost map</p>
+          <p class="cdesc">Every buying cost, grouped by the four needs it serves: prove ownership, reduce risk, enable leverage, make it earn. Expandable.</p>
+          <span class="cgo">Open map →</span>
+        </a>
+        <a class="card txn" href="Transaction-Costs-Flashcards.html">
+          <p class="ctype">Flashcards</p>
+          <p class="ctitle">40 recall cards</p>
+          <p class="cdesc">Test yourself on stamp duty, conveyancing, LMI, building &amp; pest, and the rest. Filter by group, flip to reveal.</p>
+          <span class="cgo">Open flashcards →</span>
+        </a>
+      </div>
+      <p class="extra">Also included: a <a href="Transaction-Costs-Mindmap.svg">static one-glance image</a> of the map.</p>
+    </section>
+
+    <section class="group">
+      <div class="grouphead">
+        <h2 class="grouptitle">Holding Costs</h2>
+        <span class="pill pill-hold">recurring · owning</span>
+      </div>
+      <p class="groupsub">What you pay every single year you own it — the costs that decide whether you can hold on long enough to win.</p>
+      <div class="cards">
+        <a class="card hold" href="Holding-Costs-Map.html">
+          <p class="ctype">Mind Map</p>
+          <p class="ctitle">The complete cost map</p>
+          <p class="cdesc">Eight buckets, fully nested: the who-pays rule, rates &amp; land tax, insurance, the property manager, vacancy, maintenance, interest, and tax.</p>
+          <span class="cgo">Open map →</span>
+        </a>
+        <a class="card hold" href="Holding-Costs-Flashcards.html">
+          <p class="ctype">Flashcards</p>
+          <p class="ctitle">42 recall cards</p>
+          <p class="cdesc">Land tax, negative gearing, depreciation, the interest-only cliff, offset accounts and more. Filter by group, flip to reveal.</p>
+          <span class="cgo">Open flashcards →</span>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      Built as a personal study guide while working through an Australian property-investing course. General educational material only — not financial, tax or legal advice.
+    </footer>
+  </div>
+</body>
+</html>

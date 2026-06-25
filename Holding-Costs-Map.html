@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Holding Costs — Complete Map</title>
+<style>
+  body{margin:0;background:#F7F6F2;color:#2C2C2A;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    display:flex;justify-content:center;padding:32px 16px}
+  .hcwrap{width:100%;max-width:820px}
+  .hchead{font-size:20px;font-weight:700;margin:0 0 2px}
+  .hcsub{font-size:13px;color:#6B6A64;margin:0 0 16px}
+  .hcctl{display:flex;gap:8px;margin-bottom:14px}
+  .hcctl button{font:inherit;font-size:13px;border:1px solid #D3D1C7;background:#fff;color:inherit;padding:7px 14px;border-radius:8px;cursor:pointer}
+  .hcctl button:hover{background:#efeee8}
+  .node.d0{border:1px solid #E3E1D8;border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--lt)}
+  .node.d0>.head{background:var(--ac);color:#fff;padding:12px 15px;font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:9px;cursor:pointer}
+  .node.d0>.head .det{color:rgba(255,255,255,.88);font-weight:500}
+  .node.d0>.kids{padding:9px 13px 11px}
+  .node.d1{margin:1px 0}
+  .node.d1>.head{display:flex;align-items:flex-start;gap:7px;padding:8px 9px;border-radius:7px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ik)}
+  .node.d1>.head:hover{background:rgba(0,0,0,.045)}
+  .node.d1>.kids{padding:3px 0 8px 20px;border-left:2px solid var(--ac);margin:2px 0 5px 11px}
+  .node.d2>.head,.node.d3>.head{display:flex;align-items:flex-start;gap:6px;padding:4px 6px;border-radius:6px;font-size:13px;line-height:1.55;font-weight:500;color:#34332f;cursor:default}
+  .node.d2.haskids>.head{cursor:pointer;font-weight:600}
+  .node.d2.haskids>.head:hover{background:rgba(0,0,0,.04)}
+  .node.d2>.kids{padding:2px 0 5px 18px;border-left:2px solid var(--ac);margin:2px 0 5px 10px}
+  .leaf>.head .bul{color:var(--ac);font-weight:800;line-height:1.4}
+  .det{color:#6B6A64;font-weight:400}
+  .car{font-size:10px;transition:transform .15s ease;display:inline-block;margin-top:4px;opacity:.85}
+  .node.open>.head .car{transform:rotate(90deg)}
+  .kids{display:none}
+  .node.open>.kids{display:block}
+  .hcfoot{font-size:12px;color:#9b9a92;font-style:italic;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="hcwrap">
+  <p class="hchead">Holding Costs — what you pay every year you own</p>
+  <p class="hcsub">Recurring, unlike the one-off transaction costs. Click any branch to open it.</p>
+  <div class="hcctl">
+    <button id="hcExpand">Expand all</button>
+    <button id="hcCollapse">Collapse all</button>
+  </div>
+  <div id="hctree"></div>
+  <p class="hcfoot">Growth is the engine; cash flow is the oil — these costs decide whether you can hold long enough to win.</p>
+</div>
+<script>
+(function(){
+  var colors={
+    rule:{ac:'#5F6B7A',lt:'#F3F5F7',ik:'#2C343C'},
+    govt:{ac:'#534AB7',lt:'#F6F5FE',ik:'#26215C'},
+    ins:{ac:'#1D9E75',lt:'#F0FBF7',ik:'#04342C'},
+    pm:{ac:'#D85A30',lt:'#FEF6F2',ik:'#4A1B0C'},
+    vac:{ac:'#D4537E',lt:'#FEF5F8',ik:'#4B1528'},
+    maint:{ac:'#0E8C82',lt:'#EFFAF8',ik:'#053A36'},
+    fin:{ac:'#3B6FB5',lt:'#F1F6FC',ik:'#11304F'},
+    tax:{ac:'#B8862B',lt:'#FBF7EE',ik:'#4A3608'}
+  };
+  var tree=[
+   {t:'① The rule: who pays?',d:'follows the person vs sticks to the property',color:'rule',children:[
+     {t:'Follows the PERSON → tenant',d:'consumption: electricity, gas, internet, water usage (if efficient)'},
+     {t:'Sticks to the PROPERTY → owner',d:'council rates, land tax, strata, water service charge'},
+     {t:'The test',d:'"would this bill still come if the place were empty?" → yes = yours'}
+   ]},
+   {t:'② Government / statutory',d:'you owe these every year',color:'govt',children:[
+     {t:'Council rates (~$1.5–2.5k)',d:'local-govt property tax on land value; rubbish, roads, parks; always owner'},
+     {t:'Land tax',d:'state tax for OWNING land — owed even in an empty or loss year',children:[
+       {t:'Two shields',d:'your own home is exempt; a tax-free threshold covers the first slice'},
+       {t:'Per-state aggregation',d:'each state taxes only its own land, with its own threshold'},
+       {t:'Spread across states = real saving',d:'fresh threshold per state — but VIC threshold is tiny (~$50k)'},
+       {t:'Trusts blow it up',d:'lower/zero threshold; QLD tried nationwide aggregation in 2022, then scrapped it'},
+       {t:'PK under-weights it',d:'the load-bearing omission in his model'}
+     ]},
+     {t:'Water & sewerage',d:'fixed SERVICE charge = always you; USAGE = tenant if water-efficient & metered'},
+     {t:'Strata / body corporate',d:'units & townhouses only; $2–5k+/yr plus special levies'}
+   ]},
+   {t:'③ Insurance',d:'protect the asset & the income',color:'ins',children:[
+     {t:'Building insurance',d:'the structure, ANY cause (fire, storm, flood, theft); occupied or empty'},
+     {t:'Landlord insurance',d:'the tenant-relationship risks',children:[
+       {t:'Loss of rent',d:'tenant stops paying — you still owe the bank'},
+       {t:'Tenant damage',d:'accidental AND malicious'},
+       {t:'Liability',d:'someone injured at the property sues you'}
+     ]},
+     {t:'Usually bundled into one policy',d:'the insurer sorts the categorisation; you just claim'},
+     {t:'Backed by evidence',d:'entry/exit condition reports (photos) + the bond'},
+     {t:"Renter's insurance is the TENANT's",d:'their own contents — not your policy'}
+   ]},
+   {t:'④ Property manager',d:'run it as a business while you’re remote',color:'pm',children:[
+     {t:'Why you need one',d:'borderless investing — you’re 900km away with a day job'},
+     {t:'What they do',d:'advertise · screen like a bank · draft lease · collect rent · inspect · arrange repairs · lodge bond · statements'},
+     {t:'Fees map to the lifecycle',children:[
+       {t:'Management fee = % of rent',d:'ongoing; ties their pay to your rent → incentives aligned'},
+       {t:'Letting fee (~1–2 wks rent)',d:'one-off, each new tenant placed'},
+       {t:'Advertising · lease renewal · admin',d:'one-off or small ongoing'}
+     ]},
+     {t:'Principal–agent problem',d:'they fill fast (maybe a dud); YOU bear the cost; reputation disciplines them'},
+     {t:'Your levers',d:'choose well · approval gates (tenant + repair limit) · documented inspections · power to fire'}
+   ]},
+   {t:'⑤ Vacancy',d:'the empty-weeks bleed',color:'vac',children:[
+     {t:'No rent, every cost still fires',d:'mortgage, rates, land tax, insurance, strata all keep going'},
+     {t:'Turnover stacks costs',d:'vacancy + advertising + cleaning + letting fee + catch-up maintenance'},
+     {t:'PK budgets ~1.5 wks/yr',d:'optimistic in a soft market'},
+     {t:'Antidote: a long-staying tenant',d:'worth keeping rent slightly under market to retain a good one'},
+     {t:'No PM fee while empty',d:'no rent = no % fee; but re-letting triggers the letting fee'}
+   ]},
+   {t:'⑥ Maintenance & repairs',d:'keep it in repair',color:'maint',children:[
+     {t:'Legal floor',d:'must keep it habitable; urgent repairs done fast'},
+     {t:'Three tiers of failure',children:[
+       {t:'Cheap & frequent',d:'taps, drains, lights, fence palings, garden'},
+       {t:'Mid & periodic',d:'repaint, recarpet, air-con service'},
+       {t:'Rare & brutal',d:'hot water system, roof, restumping, appliance replacement'}
+     ]},
+     {t:'PK budgets ~$1,500/yr',d:'optimistic for older homes; the building inspection informs it'},
+     {t:'Sinking fund',d:'set aside the yearly average, accumulate for the brutal year — park it in the offset'},
+     {t:'Repair vs depreciation vs replacement',d:'repair = cash to fix · depreciation = ageing (no cash) · replacement = new asset'},
+     {t:'Don’t forget',d:'pool maintenance (avoid pools), annual termite inspection, compliance (smoke alarms)'}
+   ]},
+   {t:'⑦ Finance — the heavyweight',d:'servicing the debt',color:'fin',children:[
+     {t:'Interest = biggest cost by far',d:'~$26k/yr on $440k @ 6% — about two-thirds of ALL holding costs'},
+     {t:'The rate is the swing factor',d:'6% → negative cash flow; 4% → ~break-even; PK’s low rate is load-bearing'},
+     {t:'Usually negatively geared early',d:'it costs you to hold → it’s a GROWTH bet; cash flow just keeps you holding'},
+     {t:'Interest-only & the cliff',children:[
+       {t:'IO keeps payments low',d:'pay interest only; debt stays big (good for buying again)'},
+       {t:'The IO→P&I cliff',d:'~+30% repayment when it reverts; principal squeezed into fewer years'},
+       {t:'Extending IO isn’t guaranteed',d:'APRA + the DTI ceiling can force you onto P&I'}
+     ]},
+     {t:'Offset account',d:'park cash → cuts interest WITHOUT repaying the loan; keeps debt big + cash accessible; variable only'},
+     {t:'Package fee (~$400) = "bank charges"',d:'a broker charges you nothing ongoing — paid by the lender'}
+   ]},
+   {t:'⑧ Tax & professionals',d:'the money-makers',color:'tax',children:[
+     {t:'Accountant (~$300–700, deductible)',d:'claims every deduction, depreciation, negative gearing, CGT, structure — vs broker = lending'},
+     {t:'Depreciation',d:'a NO-CASH deduction for ageing',children:[
+       {t:'Building 2.5%/yr over 40yr + fittings',d:'land never depreciates'},
+       {t:'Non-cash = tax back without spending',d:'the cost was paid at purchase; you claim the wear in slices'},
+       {t:'2017 rule',d:'second-hand homes: no depreciation on used plant & equipment (structure still counts)'}
+     ]},
+     {t:'Negative gearing',d:'a rental LOSS offsets your SALARY this year → tax refund; depreciation can manufacture the paper loss'},
+     {t:'Medicare levy +2%',d:'real top marginal rate is 47%, not 45% — PK’s tool ignores it'},
+     {t:'PAYG withholding variation',d:'get the negative-gearing benefit each payday, not as one year-end refund'},
+     {t:'Ownership structure → Week 6',d:'name vs trust vs company vs SMSF changes tax, protection, land tax'}
+   ]}
+  ];
+  function node(n,depth){
+    var has=n.children&&n.children.length;
+    var w=document.createElement('div');
+    w.className='node d'+depth+(has?' haskids':' leaf');
+    if(depth===0&&n.color){var c=colors[n.color];w.style.cssText='--ac:'+c.ac+';--lt:'+c.lt+';--ik:'+c.ik;}
+    var h=document.createElement('div');h.className='head';
+    if(has){var car=document.createElement('span');car.className='car';car.textContent='▸';h.appendChild(car);}
+    else{var b=document.createElement('span');b.className='bul';b.textContent='–';h.appendChild(b);}
+    var t=document.createElement('span');t.className='ttl';t.textContent=n.t;
+    if(n.d){var d=document.createElement('span');d.className='det';d.textContent=' — '+n.d;t.appendChild(d);}
+    h.appendChild(t);w.appendChild(h);
+    if(has){
+      var k=document.createElement('div');k.className='kids';
+      n.children.forEach(function(ch){k.appendChild(node(ch,depth+1));});
+      w.appendChild(k);
+      if(depth===0)w.classList.add('open');
+      h.addEventListener('click',function(e){e.stopPropagation();w.classList.toggle('open');});
+    }
+    return w;
+  }
+  var root=document.getElementById('hctree');
+  tree.forEach(function(n){root.appendChild(node(n,0));});
+  document.getElementById('hcExpand').addEventListener('click',function(){
+    root.querySelectorAll('.node.haskids').forEach(function(x){x.classList.add('open');});});
+  document.getElementById('hcCollapse').addEventListener('click',function(){
+    root.querySelectorAll('.node.haskids').forEach(function(x){x.classList.remove('open');});
+    root.querySelectorAll('.node.d0').forEach(function(x){x.classList.add('open');});});
+})();
+</script>
+</body>
+</html>

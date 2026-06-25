@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transaction Costs — Flashcards</title>
+<style>
+  :root{
+    --bg:#F7F6F2; --card:#FFFFFF; --ink:#2C2C2A; --muted:#6B6A64; --line:#E3E1D8;
+    --title:#26215C; --titlebg:#EEEDFE; --titlebd:#CECBF6;
+    --risk:#04342C; --riskbg:#E1F5EE; --riskbd:#9FE1CB;
+    --fin:#4A1B0C; --finbg:#FAECE7; --finbd:#F5C4B3;
+    --earn:#4B1528; --earnbg:#FBEAF0; --earnbd:#F4C0D1;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:28px 16px}
+  h1{font-size:20px;margin:0 0 4px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;justify-content:center}
+  .filters button{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;color:var(--muted);
+    padding:5px 11px;border-radius:999px;cursor:pointer}
+  .filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .counter{color:var(--muted);font-size:13px;margin-bottom:10px;font-variant-numeric:tabular-nums}
+  .card{width:min(640px,94vw);min-height:300px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;
+    display:flex;flex-direction:column;justify-content:center;padding:34px 36px;position:relative;
+    transition:transform .12s ease}
+  .card:active{transform:scale(.995)}
+  .tag{position:absolute;top:16px;left:18px;font-size:11px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;padding:4px 10px;border-radius:999px}
+  .t-title{background:var(--titlebg);color:var(--title);border:1px solid var(--titlebd)}
+  .t-risk{background:var(--riskbg);color:var(--risk);border:1px solid var(--riskbd)}
+  .t-fin{background:var(--finbg);color:var(--fin);border:1px solid var(--finbd)}
+  .t-earn{background:var(--earnbg);color:var(--earn);border:1px solid var(--earnbd)}
+  .side{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 12px}
+  .q{font-size:20px;line-height:1.45;font-weight:650}
+  .a{font-size:16px;line-height:1.6;color:#3a3a37}
+  .hint{position:absolute;bottom:14px;right:18px;font-size:11.5px;color:#A6A49B}
+  .nav{display:flex;gap:10px;margin-top:18px;align-items:center}
+  button.act{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:9px 18px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:#f0efe9}
+  button.act:disabled{opacity:.4;cursor:default}
+  .flipbtn{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .flipbtn:hover{background:#000}
+  .foot{color:#A6A49B;font-size:12px;margin-top:22px;text-align:center;max-width:560px;line-height:1.5}
+</style>
+</head>
+<body>
+  <h1>Property Transaction Costs</h1>
+  <p class="sub">Click the card (or press Space) to flip · arrows to move · filter by group below</p>
+  <div class="filters" id="filters"></div>
+  <div class="counter" id="counter"></div>
+  <div class="card" id="card">
+    <span class="tag" id="tag"></span>
+    <div class="side" id="side"></div>
+    <div id="body"></div>
+    <span class="hint">tap to flip</span>
+  </div>
+  <div class="nav">
+    <button class="act" id="prev">← Prev</button>
+    <button class="act flipbtn" id="flip">Flip</button>
+    <button class="act" id="next">Next →</button>
+  </div>
+  <p class="foot">Every fee answers one of four needs: prove who owns it · reduce your risk · enable the leverage · make it earn.</p>
+
+<script>
+const ALL=[
+ // ① PROVE OWNERSHIP — title & tax
+ {c:"title",q:"What are you actually buying when you buy a property?",a:"A legal right recorded in the Land Titles Registry. Ownership transfers when the register updates the name — NOT at the cash-and-keys handshake."},
+ {c:"title",q:"What is the Torrens system?",a:"Australia's land-title system: a single government register is conclusive. Whoever it names IS the owner, and the title is 'indefeasible' — guaranteed by the state."},
+ {c:"title",q:"What does 'the register = the truth' mean?",a:"The government register is the source of truth. Your paper deed is just a copy; in any dispute, the register wins."},
+ {c:"title",q:"What is indefeasible title?",a:"Once you're recorded as owner, your title is protected — even against a prior fraud you knew nothing about. This is the genius of Torrens vs the old deeds system."},
+ {c:"title",q:"What is VOI (Verification of Identity)?",a:"Conveyancers must verify their client really is who they claim to be before lodging anything. It's the front-line defence against someone impersonating an owner to sell a house they don't own."},
+ {c:"title",q:"What is the assurance fund?",a:"A government-backed compensation fund that pays innocent parties who get defrauded through the system. It's the money backstop that makes trusting the register safe."},
+ {c:"title",q:"What does a conveyancer do — and why hire your own?",a:"Investigates the title (mortgages, caveats, easements) and the contract, and advocates for YOU. You and the seller each hire your own because your interests differ — it's advocacy, not neutral admin."},
+ {c:"title",q:"What is PI insurance and why does it matter to you?",a:"Professional Indemnity insurance, which conveyancers must carry. It's your recourse — if they stuff up through negligence, you can claim against it."},
+ {c:"title",q:"Where does a conveyancer actually look?",a:"Title search (registry), contract of sale, council records (zoning, rates, orders), the water authority, and planning certificates. That bundle of searches is what the fee buys."},
+ {c:"title",q:"What does the transfer / registration fee (~$300) buy?",a:"The registry physically updating the ledger into your name — plus a mortgage registration fee to record the bank's interest."},
+ {c:"title",q:"Why is property the perfect thing to tax (stamp duty)?",a:"Three reasons: it's visible (every transfer passes through the registry), immovable (can't flee the jurisdiction), and high lumpy value."},
+ {c:"title",q:"Stamp duty — state or federal? Why does it vary?",a:"A STATE tax, so each state sets its own. The same $500k place costs ~$11k duty in ACT vs ~$25k in VIC."},
+ {c:"title",q:"What's the market-value floor on stamp duty?",a:"Duty is assessed on market value, not just your stated price — so you can't sham a $1 sale to a mate to dodge it."},
+ {c:"title",q:"Why do economists call stamp duty a 'bad' tax?",a:"It punishes transacting, so it discourages people from moving or downsizing — a deadweight loss on the economy."},
+ {c:"title",q:"Why would a government abolish stamp duty (like the ACT)?",a:"It isn't giving up the revenue — it's swapping to an annual land tax: less volatile and more efficient. It's just politically painful (a visible yearly bill, plus a transition double-tax problem)."},
+ {c:"title",q:"Roughly what's stamp duty on a $500k investment property by state?",a:"ACT ~$11.4k · QLD ~$15.9k · WA & NSW ~$17.8k · TAS ~$18.2k · SA ~$21.3k · NT ~$23.9k · VIC ~$25k. Confirm live figures with a calculator/broker."},
+ {c:"title",q:"What's the foreign-buyer surcharge?",a:"An extra 7–9% on top of stamp duty, but only if you're NOT an Australian citizen or permanent resident. Ignore it if you're a resident."},
+
+ // ② REDUCE YOUR RISK — verification
+ {c:"risk",q:"What is information asymmetry?",a:"The seller knows the property's defects and you don't — the 'market for lemons'. The listing is marketing, not disclosure, so you have to BUY your own information."},
+ {c:"risk",q:"Building vs pest vs location — who checks what?",a:"Building inspector = the structure/condition. Pest inspector = termites & pests. Council/planning searches (via your conveyancer) = location hazards like flood and bushfire."},
+ {c:"risk",q:"What does a building inspection cover?",a:"Structural cracking, shaky/sloping floors, subsidence, mould, rising damp, water ingress, plumbing, gas, and asbestos in older homes."},
+ {c:"risk",q:"Why can't you DIY a building inspection?",a:"A freshly re-rendered wall hides cracks and termites hide behind plaster — it takes a trained eye, a moisture meter and a thermal camera to see what you physically can't."},
+ {c:"risk",q:"Which location hazards matter in Australia, and who finds them?",a:"Flood and bushfire (earthquake/tsunami are negligible here). They're found via council/planning searches and hazard overlays — the conveyancer's job, not the inspector's."},
+ {c:"risk",q:"What makes an inspector's report trustworthy?",a:"They're licensed, insured, and independent of the seller and agent — that independence is what makes the report worth paying for."},
+
+ // ③ ENABLE THE LEVERAGE — financing
+ {c:"fin",q:"When is LMI required, and who provides it?",a:"Required whenever your deposit is under 20% (LVR over 80%). The two main insurers in Australia are Helia (formerly Genworth) and QBE."},
+ {c:"fin",q:"Who does LMI protect — and who pays for it?",a:"It protects the BANK, not you. You pay the premium (one-off, capitalised onto the loan) and get zero protection yourself."},
+ {c:"fin",q:"What is PK's 88% LVR 'sweet spot'?",a:"LMI rises gently as you go from 80% to 88% LVR, then spikes hard past 90%. So 88% gives maximum leverage for minimum LMI."},
+ {c:"fin",q:"After a default, how does the LMI insurer get money from you?",a:"Subrogation: it pays the bank the shortfall, inherits the bank's right to that debt, then pursues YOU for it. Your debt never vanished — just who you owe it to."},
+ {c:"fin",q:"When the bank repossesses, how are the sale proceeds split?",a:"A waterfall: costs of sale → loan + default interest → any surplus back to you → shortfall covered by LMI. The bank has a legal duty to sell at fair market value."},
+ {c:"fin",q:"Why does a bigger deposit reassure the bank?",a:"Two effects: an equity buffer against price falls (so they recover their money in a forced sale), and skin in the game (you're less likely to walk away)."},
+ {c:"fin",q:"Why do borrowers actually default?",a:"Almost always involuntarily — job loss, illness, divorce, or rate rises making repayments unaffordable. The bank prices the risk that life happens, not that you're a scammer."},
+ {c:"fin",q:"What's the bank's serviceability formula, top to bottom?",a:"Income − HEM living costs − existing commitments → test the repayments at your rate + 3% → check your DTI isn't too high. All gates must pass."},
+ {c:"fin",q:"What is HEM?",a:"The Household Expenditure Measure — a benchmark estimate of what a household like yours spends to live. Banks use it as a floor, even if you claim you spend less, so you can't lowball to borrow more."},
+ {c:"fin",q:"What is the APRA serviceability buffer?",a:"APRA forces banks to test you at your interest rate PLUS 3 percentage points. Borrowing at 6%? You're assessed at 9%. It's the main reason borrowing capacity is lower than expected."},
+ {c:"fin",q:"What is DTI, and why is it the real portfolio ceiling?",a:"Debt-to-Income = total debt ÷ gross income; 6+ is high-risk. Each new property adds debt faster than income, so your DTI climbs until the bank says no — regardless of how much equity you have."},
+ {c:"fin",q:"What is APRA?",a:"The Australian Prudential Regulation Authority — the regulator that supervises the banks for financial-system stability. Its buffer and DTI rules came in AFTER PK recorded the course, so lending is tighter today."},
+ {c:"fin",q:"What are the bank's own purchase costs?",a:"Bank legal fees ~$100–300 (preparing mortgage docs), a settlement fee ~$600, and a trivial bank cheque fee ~$15."},
+
+ // ④ MAKE IT EARN — ready & tax
+ {c:"earn",q:"What are the 'tenant-ready' costs?",a:"Cleaning ~$400–600 and a water efficiency test ~$200 (which lets you pass water-usage charges to the tenant, e.g. in QLD). Removalist is usually nil for an investment property."},
+ {c:"earn",q:"Depreciation schedule (QS, ~$550) — why is it different in kind?",a:"It's a tax tool, not a cost of transacting. A quantity surveyor's schedule lets you claim the building's depreciation as a deduction — it pays for itself, yet ~90% of investors skip it."},
+ {c:"earn",q:"What is land tax, and why do states like it?",a:"A state tax above a land-value threshold, levied across your whole portfolio. It's considered 'efficient' because land can't be hidden or moved and its supply is fixed — so taxing it barely distorts behaviour. PK's model under-weights it as a holding cost."},
+ {c:"earn",q:"Do you need a buyer's agent?",a:"Optional — they cost $10–20k. PK's view is the course teaches you to inspect, value and negotiate yourself, so you won't need one."}
+];
+const labels={title:"① Prove ownership",risk:"② Reduce your risk",fin:"③ Enable leverage",earn:"④ Make it earn"};
+const tagClass={title:"t-title",risk:"t-risk",fin:"t-fin",earn:"t-earn"};
+let filter="all", cards=ALL.slice(), i=0, showingA=false;
+
+function buildFilters(){
+  const wrap=document.getElementById("filters");
+  const defs=[["all","All ("+ALL.length+")"],["title","① Ownership"],["risk","② Risk"],["fin","③ Leverage"],["earn","④ Earn"]];
+  wrap.innerHTML="";
+  defs.forEach(([key,lbl])=>{
+    const b=document.createElement("button");
+    b.textContent=lbl; b.className=(filter===key?"on":"");
+    b.onclick=()=>{filter=key; cards=(key==="all")?ALL.slice():ALL.filter(c=>c.c===key); i=0; showingA=false; buildFilters(); render();};
+    wrap.appendChild(b);
+  });
+}
+function render(){
+  const card=cards[i];
+  document.getElementById("counter").textContent=`Card ${i+1} of ${cards.length}`;
+  const tag=document.getElementById("tag");
+  tag.textContent=labels[card.c]; tag.className="tag "+tagClass[card.c];
+  document.getElementById("side").textContent=showingA?"Answer":"Question";
+  const body=document.getElementById("body");
+  body.className=showingA?"a":"q";
+  body.textContent=showingA?card.a:card.q;
+  document.getElementById("prev").disabled=(i===0);
+  document.getElementById("next").disabled=(i===cards.length-1);
+}
+function flip(){showingA=!showingA;render();}
+function go(d){const n=i+d; if(n<0||n>=cards.length)return; i=n; showingA=false; render();}
+document.getElementById("card").onclick=flip;
+document.getElementById("flip").onclick=(e)=>{e.stopPropagation();flip();};
+document.getElementById("prev").onclick=(e)=>{e.stopPropagation();go(-1);};
+document.getElementById("next").onclick=(e)=>{e.stopPropagation();go(1);};
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"){e.preventDefault();flip();}
+  else if(e.key==="ArrowRight")go(1);
+  else if(e.key==="ArrowLeft")go(-1);
+});
+buildFilters(); render();
+</script>
+</body>
+</html>

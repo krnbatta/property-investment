@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holding Costs — Flashcards</title>
+<style>
+  :root{
+    --bg:#F7F6F2; --card:#FFFFFF; --ink:#2C2C2A; --muted:#6B6A64; --line:#E3E1D8;
+    --stat:#26215C; --statbg:#EEEDFE; --statbd:#CECBF6;
+    --ins:#04342C; --insbg:#E1F5EE; --insbd:#9FE1CB;
+    --mgr:#4A1B0C; --mgrbg:#FAECE7; --mgrbd:#F5C4B3;
+    --upk:#4B1528; --upkbg:#FBEAF0; --upkbd:#F4C0D1;
+    --fin:#11304F; --finbg:#EAF2FB; --finbd:#Bcd7f2;
+    --tax:#4A3608; --taxbg:#FBF3E2; --taxbd:#EAD7AE;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:28px 16px}
+  h1{font-size:20px;margin:0 0 4px;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;justify-content:center}
+  .filters button{font:inherit;font-size:12px;border:1px solid var(--line);background:#fff;color:var(--muted);
+    padding:5px 11px;border-radius:999px;cursor:pointer}
+  .filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .counter{color:var(--muted);font-size:13px;margin-bottom:10px;font-variant-numeric:tabular-nums}
+  .card{width:min(640px,94vw);min-height:300px;background:var(--card);border:1px solid var(--line);
+    border-radius:18px;box-shadow:0 1px 3px rgba(0,0,0,.05);cursor:pointer;
+    display:flex;flex-direction:column;justify-content:center;padding:34px 36px;position:relative;
+    transition:transform .12s ease}
+  .card:active{transform:scale(.995)}
+  .tag{position:absolute;top:16px;left:18px;font-size:11px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;padding:4px 10px;border-radius:999px}
+  .t-stat{background:var(--statbg);color:var(--stat);border:1px solid var(--statbd)}
+  .t-ins{background:var(--insbg);color:var(--ins);border:1px solid var(--insbd)}
+  .t-mgr{background:var(--mgrbg);color:var(--mgr);border:1px solid var(--mgrbd)}
+  .t-upk{background:var(--upkbg);color:var(--upk);border:1px solid var(--upkbd)}
+  .t-fin{background:var(--finbg);color:var(--fin);border:1px solid var(--finbd)}
+  .t-tax{background:var(--taxbg);color:var(--tax);border:1px solid var(--taxbd)}
+  .side{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 12px}
+  .q{font-size:20px;line-height:1.45;font-weight:650}
+  .a{font-size:16px;line-height:1.6;color:#3a3a37}
+  .hint{position:absolute;bottom:14px;right:18px;font-size:11.5px;color:#A6A49B}
+  .nav{display:flex;gap:10px;margin-top:18px;align-items:center}
+  button.act{font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink);
+    padding:9px 18px;border-radius:10px;cursor:pointer}
+  button.act:hover{background:#f0efe9}
+  button.act:disabled{opacity:.4;cursor:default}
+  .flipbtn{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .flipbtn:hover{background:#000}
+  .foot{color:#A6A49B;font-size:12px;margin-top:22px;text-align:center;max-width:580px;line-height:1.5}
+</style>
+</head>
+<body>
+  <h1>Property Holding Costs</h1>
+  <p class="sub">Click the card (or press Space) to flip · arrows to move · filter by group below</p>
+  <div class="filters" id="filters"></div>
+  <div class="counter" id="counter"></div>
+  <div class="card" id="card">
+    <span class="tag" id="tag"></span>
+    <div class="side" id="side"></div>
+    <div id="body"></div>
+    <span class="hint">tap to flip</span>
+  </div>
+  <div class="nav">
+    <button class="act" id="prev">← Prev</button>
+    <button class="act flipbtn" id="flip">Flip</button>
+    <button class="act" id="next">Next →</button>
+  </div>
+  <p class="foot">Recurring costs, grouped: statutory · insurance · manager · vacancy &amp; upkeep · finance · tax. Growth is the engine; cash flow keeps you in the game.</p>
+
+<script>
+const ALL=[
+ // STATUTORY
+ {c:"stat",q:"What's the one rule for who pays which bill?",a:"Follows the PERSON → tenant (electricity, gas, internet, water usage). Sticks to the PROPERTY → owner (council rates, land tax, strata, water service charge). Test: would the bill still come if it were empty? Yes = yours."},
+ {c:"stat",q:"How are holding costs different from transaction costs?",a:"Transaction costs are one-off (pay once to buy). Holding costs are recurring — they come back every single year you own the property."},
+ {c:"stat",q:"What are council rates, and who pays?",a:"The local government's property tax, charged on land value — funds rubbish, roads, parks. Always the owner (~$1.5–2.5k/yr), and it rises most years."},
+ {c:"stat",q:"What is land tax?",a:"A state tax you owe just for OWNING land above a threshold — based on land value, not income. You owe it even in a year the property sat empty or ran at a loss."},
+ {c:"stat",q:"Why do most people never pay land tax?",a:"Two shields: the home you live in is exempt, and there's a tax-free threshold on the rest. Renters own no land. It only bites investors who accumulate."},
+ {c:"stat",q:"How can spreading across states cut land tax — and the catch?",a:"Each state aggregates only its own land and gives its own threshold, so spreading = a fresh threshold per state. Catches: VIC's threshold is tiny (~$50k), trusts lose the threshold, and QLD tried (then scrapped) nationwide aggregation in 2022."},
+ {c:"stat",q:"The water bill — who pays which part?",a:"The fixed service + sewerage charge is always the owner's. The usage portion can be passed to the tenant — but only if the property is water-efficient and separately metered."},
+ {c:"stat",q:"What is strata / body corporate, and when does it apply?",a:"A shared-building cost for units and townhouses ($2–5k+/yr, plus possible special levies). Owner pays. A standalone house has none."},
+
+ // INSURANCE
+ {c:"ins",q:"What does building insurance cover?",a:"The physical structure against damage from ANY cause — fire, storm, flood, theft of fixtures — whether the place is occupied or empty. It protects the asset."},
+ {c:"ins",q:"What does landlord insurance cover?",a:"The risks that exist only because you rent to a tenant: loss of rent, tenant damage (accidental AND malicious), and liability if someone's injured at the property."},
+ {c:"ins",q:"Building vs landlord insurance — the dividing line?",a:"The asset (any peril) vs the tenant relationship. Building = the bricks; landlord = everything risky about renting to a stranger. They're usually bundled into one policy."},
+ {c:"ins",q:"Accidental kitchen fire vs deliberate smashing — which policy?",a:"Accidental fire → building (it's structural damage, any cause). Deliberate smashing → landlord (malicious tenant damage). Principle: accidental vs deliberate intent — though a bundled policy covers both."},
+ {c:"ins",q:"How are tenant-damage disputes actually resolved?",a:"Not by you proving intent. Entry/exit condition reports (photos) + the bond + the tribunal do the adjudicating; you just lodge the insurance claim."},
+ {c:"ins",q:"\"Renter's insurance\" — whose policy is that?",a:"The tenant's, covering their own belongings. The policy YOU hold as owner is landlord insurance — don't confuse them."},
+
+ // MANAGER
+ {c:"mgr",q:"Why hire a property manager at all?",a:"Borderless investing — you're often interstate with a day job and can't run the place yourself. The PM is your eyes, hands and admin on the ground."},
+ {c:"mgr",q:"What does a property manager actually do?",a:"Advertise, screen tenants (like a bank), draft the lease, collect rent, inspect, arrange repairs, lodge the bond, handle disputes/tribunal, and send you statements."},
+ {c:"mgr",q:"How is the management fee charged, and why that way?",a:"A percentage of the rent, ongoing. Tying their pay to your rent aligns incentives — an empty property earns them nothing, so they're motivated to keep it rented."},
+ {c:"mgr",q:"What's the letting fee?",a:"A one-off charge (~1–2 weeks' rent) each time they place a NEW tenant — covering advertising, screening, lease drafting and bond lodging."},
+ {c:"mgr",q:"What's the principal-agent problem with a PM?",a:"Their incentives only partly match yours. With no income while it's empty, they're biased to fill it FAST — maybe with a weaker tenant — and YOU bear the financial cost of a dud, not them."},
+ {c:"mgr",q:"What levers keep a property manager honest?",a:"Choose well (reputation, load per manager); write approval gates into the agreement (you OK the tenant + a repair spend limit); insist on documented inspections; and keep the power to fire them."},
+
+ // VACANCY & UPKEEP
+ {c:"upk",q:"What does a vacancy actually cost you?",a:"Lost rent PLUS every ownership cost still firing — mortgage, council rates, land tax, insurance, strata all keep going while zero income comes in."},
+ {c:"upk",q:"Why is tenant turnover so expensive?",a:"It stacks costs at once: vacancy + advertising + cleaning + a new letting fee + catch-up maintenance. One of the priciest events in owning a rental."},
+ {c:"upk",q:"What's the single most valuable kind of tenant?",a:"A long-staying, reliable one — they eliminate the whole turnover bundle. Often worth keeping their rent slightly under market to retain them."},
+ {c:"upk",q:"Does the PM charge you while the place is vacant?",a:"No management fee — no rent means no percentage. But the moment they re-let it, they collect the letting fee. So vacancy bills no PM fee; re-letting does."},
+ {c:"upk",q:"What are the three tiers of maintenance?",a:"Cheap & frequent (taps, drains, lights), mid & periodic (repaint, recarpet, air-con service), and rare & brutal (hot water system, roof, restumping, appliance replacement)."},
+ {c:"upk",q:"Is PK's ~$1,500/yr maintenance budget reliable?",a:"It's an optimistic average — fine for a new home, low for an older one. The building inspection at purchase should tell you which you're dealing with."},
+ {c:"upk",q:"What's a sinking fund, and where should it live?",a:"You set aside the yearly average so the big-ticket year (hot water + roof) doesn't break you. Park it in your offset account so it also cuts your interest while it waits."},
+ {c:"upk",q:"What's the legal floor on maintenance?",a:"You must keep the property habitable. Urgent repairs — no hot water in winter, a gas leak — must be fixed fast; you can't just ignore them."},
+
+ // FINANCE
+ {c:"fin",q:"Which holding cost is biggest, by far?",a:"Interest — roughly $26k/yr on a $440k loan at 6%, about two-thirds of ALL holding costs combined. Every other line is a rounding error next to it."},
+ {c:"fin",q:"Why is the interest RATE so dangerous?",a:"It's the swing factor between positive and negative cash flow: ~6% → negative, ~4% → near break-even. You don't control it, and PK's low-rate assumption is load-bearing."},
+ {c:"fin",q:"Are these properties really an income play?",a:"Usually not early on — at realistic rates they're negatively geared and cost you to hold. The real bet is capital GROWTH; cash flow just needs to be survivable so you can hold on."},
+ {c:"fin",q:"What is the interest-only → P&I cliff?",a:"When the interest-only period ends, the loan reverts to principal + interest and the repayment jumps ~30% — principal squeezed into fewer years. Extending IO isn't guaranteed (APRA + DTI ceiling can block it)."},
+ {c:"fin",q:"How does an offset account help?",a:"Cash parked in it is subtracted from your loan balance before interest is calculated — cutting interest WITHOUT repaying the loan. Debt stays big (good for buying again), cash stays accessible. Variable loans only."},
+ {c:"fin",q:"What's the 'package fee' — and is there a broker fee?",a:"~$400/yr bank package fee (often for the offset) — that's your 'bank charges' line. A mortgage broker charges you nothing ongoing; they're paid commission by the lender."},
+
+ // TAX
+ {c:"tax",q:"What does the accountant do that earns their fee?",a:"Claims every deduction including depreciation, sets up negative gearing + a PAYG variation, advises on CGT and ownership structure. Fee is ~$300–700, tax-deductible, and usually recovers far more than it costs. (Broker = lending; accountant = tax.)"},
+ {c:"tax",q:"What is depreciation?",a:"A deduction for the ageing of the building (2.5%/yr over 40 years) plus fittings (oven, carpet, blinds). The land never depreciates — only the building wears out."},
+ {c:"tax",q:"Why is depreciation more powerful than other deductions?",a:"It's NON-CASH. Every other deduction needs you to spend cash that year; depreciation gives you a deduction (and tax back) without spending anything now — the cost was paid at purchase."},
+ {c:"tax",q:"What is negative gearing?",a:"When the property runs a loss on paper, that loss is offset against your SALARY this year — reducing your taxable income and getting tax back now, not just carried forward."},
+ {c:"tax",q:"How do depreciation and negative gearing combine?",a:"Depreciation (no-cash) can manufacture a paper loss even on a property that's actually cash-positive — which you then negatively-gear against your salary for a refund. Real cash positive, paper loss, tax back."},
+ {c:"tax",q:"What's the Medicare levy, and why flag it?",a:"A flat 2% of taxable income for public health, on top of income tax — so the real top marginal rate is 47%, not the 45% PK's tool uses."},
+ {c:"tax",q:"What is a PAYG withholding variation?",a:"You arrange for the ATO to withhold less tax from each paycheck, so you receive your negative-gearing benefit fortnightly as cash flow instead of one lump refund at year-end."},
+ {c:"tax",q:"What changed for depreciation in 2017?",a:"For second-hand residential properties you can no longer claim depreciation on previously-used plant & equipment (used oven, carpet). The building structure (capital works) and new items you install still count."}
+];
+const labels={stat:"Statutory",ins:"Insurance",mgr:"Manager",upk:"Vacancy & upkeep",fin:"Finance",tax:"Tax"};
+const tagClass={stat:"t-stat",ins:"t-ins",mgr:"t-mgr",upk:"t-upk",fin:"t-fin",tax:"t-tax"};
+let filter="all", cards=ALL.slice(), i=0, showingA=false;
+
+function buildFilters(){
+  const wrap=document.getElementById("filters");
+  const defs=[["all","All ("+ALL.length+")"],["stat","Statutory"],["ins","Insurance"],["mgr","Manager"],["upk","Vacancy & upkeep"],["fin","Finance"],["tax","Tax"]];
+  wrap.innerHTML="";
+  defs.forEach(([key,lbl])=>{
+    const b=document.createElement("button");
+    b.textContent=lbl; b.className=(filter===key?"on":"");
+    b.onclick=()=>{filter=key; cards=(key==="all")?ALL.slice():ALL.filter(c=>c.c===key); i=0; showingA=false; buildFilters(); render();};
+    wrap.appendChild(b);
+  });
+}
+function render(){
+  const card=cards[i];
+  document.getElementById("counter").textContent=`Card ${i+1} of ${cards.length}`;
+  const tag=document.getElementById("tag");
+  tag.textContent=labels[card.c]; tag.className="tag "+tagClass[card.c];
+  document.getElementById("side").textContent=showingA?"Answer":"Question";
+  const body=document.getElementById("body");
+  body.className=showingA?"a":"q";
+  body.textContent=showingA?card.a:card.q;
+  document.getElementById("prev").disabled=(i===0);
+  document.getElementById("next").disabled=(i===cards.length-1);
+}
+function flip(){showingA=!showingA;render();}
+function go(d){const n=i+d; if(n<0||n>=cards.length)return; i=n; showingA=false; render();}
+document.getElementById("card").onclick=flip;
+document.getElementById("flip").onclick=(e)=>{e.stopPropagation();flip();};
+document.getElementById("prev").onclick=(e)=>{e.stopPropagation();go(-1);};
+document.getElementById("next").onclick=(e)=>{e.stopPropagation();go(1);};
+document.addEventListener("keydown",e=>{
+  if(e.code==="Space"){e.preventDefault();flip();}
+  else if(e.key==="ArrowRight")go(1);
+  else if(e.key==="ArrowLeft")go(-1);
+});
+buildFilters(); render();
+</script>
+</body>
+</html>

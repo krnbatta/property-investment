@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Transaction Costs — Complete Map</title>
+<style>
+  body{margin:0;background:#F7F6F2;color:#2C2C2A;
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    display:flex;justify-content:center;padding:32px 16px}
+  .tcwrap{width:100%;max-width:820px}
+  .tchead{font-size:20px;font-weight:700;margin:0 0 2px}
+  .tcsub{font-size:13px;color:#6B6A64;margin:0 0 16px}
+  .tcctl{display:flex;gap:8px;margin-bottom:14px}
+  .tcctl button{font:inherit;font-size:13px;border:1px solid #D3D1C7;background:#fff;color:inherit;padding:7px 14px;border-radius:8px;cursor:pointer}
+  .tcctl button:hover{background:#efeee8}
+  .node.d0{border:1px solid #E3E1D8;border-radius:12px;margin-bottom:12px;overflow:hidden;background:var(--lt)}
+  .node.d0>.head{background:var(--ac);color:#fff;padding:12px 15px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:9px;cursor:pointer}
+  .node.d0>.head .det{color:rgba(255,255,255,.88);font-weight:500}
+  .node.d0>.kids{padding:9px 13px 11px}
+  .node.d1{margin:1px 0}
+  .node.d1>.head{display:flex;align-items:flex-start;gap:7px;padding:8px 9px;border-radius:7px;cursor:pointer;font-weight:600;font-size:14px;color:var(--ik)}
+  .node.d1>.head:hover{background:rgba(0,0,0,.045)}
+  .node.d1>.kids{padding:3px 0 8px 20px;border-left:2px solid var(--ac);margin:2px 0 5px 11px}
+  .node.d2>.head,.node.d3>.head{display:flex;align-items:flex-start;gap:6px;padding:4px 6px;border-radius:6px;font-size:13px;line-height:1.55;font-weight:500;color:#34332f;cursor:default}
+  .node.d2.haskids>.head,.node.d3.haskids>.head{cursor:pointer;font-weight:600}
+  .node.d2.haskids>.head:hover{background:rgba(0,0,0,.04)}
+  .node.d2>.kids,.node.d3>.kids{padding:2px 0 5px 18px;border-left:2px solid var(--ac);margin:2px 0 5px 10px}
+  .leaf>.head .bul{color:var(--ac);font-weight:800;line-height:1.4}
+  .det{color:#6B6A64;font-weight:400}
+  .car{font-size:10px;transition:transform .15s ease;display:inline-block;margin-top:4px;opacity:.85}
+  .node.open>.head .car{transform:rotate(90deg)}
+  .kids{display:none}
+  .node.open>.kids{display:block}
+  .tcfoot{font-size:12px;color:#9b9a92;font-style:italic;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="tcwrap">
+  <p class="tchead">Property Transaction Costs — the complete map</p>
+  <p class="tcsub">~6% on top of the price. Every fee answers one of four needs. Click any branch to open it.</p>
+  <div class="tcctl">
+    <button id="tcExpand">Expand all</button>
+    <button id="tcCollapse">Collapse all</button>
+  </div>
+  <div id="tctree"></div>
+  <p class="tcfoot">Prove who owns it · reduce your risk · enable the leverage · make it earn.</p>
+</div>
+<script>
+(function(){
+  var colors={title:{ac:'#534AB7',lt:'#F6F5FE',ik:'#26215C'},risk:{ac:'#1D9E75',lt:'#F0FBF7',ik:'#04342C'},fin:{ac:'#D85A30',lt:'#FEF6F2',ik:'#4A1B0C'},earn:{ac:'#D4537E',lt:'#FEF5F8',ik:'#4B1528'}};
+  var tree=[
+   {t:'① Prove ownership',d:'title & tax',color:'title',children:[
+     {t:'The system: Torrens title',children:[
+       {t:'Land Titles Registry',d:'one government register; whoever is named IS the owner'},
+       {t:'The register = the truth',d:'your paper deed is only a copy; the register wins any dispute'},
+       {t:'Ownership transfers on registration',d:'not at the cash-and-keys handshake'},
+       {t:'Indefeasible title',d:"once registered you're protected, even against a prior fraud you knew nothing about"}
+     ]},
+     {t:'Anti-fraud safeguards',children:[
+       {t:'Verification of Identity (VOI)',d:'conveyancer must verify the client really is the owner — stops impersonation'},
+       {t:'State assurance fund',d:'government compensation fund pays innocent parties defrauded through the system'},
+       {t:'Fraudsters prosecuted',d:'the criminal-law backstop'}
+     ]},
+     {t:'Conveyancer (~$1.5–2k)',children:[
+       {t:'Investigates title + advocates for YOU',d:'you hire your own; the seller hires theirs — interests differ'},
+       {t:'Licensed + PI insurance',d:'professional indemnity insurance = your recourse if they stuff up'},
+       {t:'Where they look',d:'title search · contract of sale · council records · water authority · planning certificates'},
+       {t:'Watch for conflicts',d:'an agent- or PK-recommended conveyancer may have a referral tie — compare'}
+     ]},
+     {t:'Registration / transfer fee (~$300)',children:[
+       {t:'Updates the ledger to your name',d:"plus a mortgage registration fee to record the bank's interest"}
+     ]},
+     {t:'Stamp duty ($15–25k — the biggest)',children:[
+       {t:'A STATE tax → varies by state',d:'see the state table below'},
+       {t:'Why property is the perfect target',d:'visible (via the registry) · immovable (can’t flee) · high lumpy value'},
+       {t:'Market-value floor',d:"anti-avoidance — you can't sham a $1 price to dodge it"},
+       {t:"Considered a 'bad' tax",d:'it punishes transacting → discourages moving (deadweight loss)'},
+       {t:'ACT is phasing it out',d:'shifting to an annual land tax instead'},
+       {t:'Foreign-buyer surcharge 7–9%',d:"only if you're not a citizen/PR — ignore if resident"},
+       {t:'State table — duty on a $500k investment property',children:[
+         {t:'ACT  ~$11,400  (2.3%)',d:'lowest'},
+         {t:'QLD  ~$15,900  (3.2%)'},
+         {t:'WA  ~$17,800  (3.6%)'},
+         {t:'NSW  ~$17,800  (3.6%)'},
+         {t:'TAS  ~$18,200  (3.6%)'},
+         {t:'SA  ~$21,300  (4.3%)'},
+         {t:'NT  ~$23,900  (4.8%)'},
+         {t:'VIC  ~$25,000  (5.0%)',d:'highest'}
+       ]}
+     ]}
+   ]},
+   {t:'② Reduce your risk',d:'verification',color:'risk',children:[
+     {t:'The problem: information asymmetry',children:[
+       {t:'Seller knows, you don’t',d:"the 'market for lemons' — sellers of bad ones stay quiet"},
+       {t:'Listing photos = marketing',d:"not disclosure; the law doesn't force them to volunteer defects"},
+       {t:'So you must BUY your own information',d:'that is what these inspections are'}
+     ]},
+     {t:'Building inspection (condition)',children:[
+       {t:'Structural',d:'shaky/sloping floor · structural cracking · subsidence (ground sinking)'},
+       {t:'Damp & health',d:'mould · rising damp'},
+       {t:'Services & materials',d:'water ingress · plumbing · gas · asbestos (common in older homes)'},
+       {t:"Why you can't DIY it",d:'re-rendered walls hide cracks; needs trained eye, moisture meter, thermal camera'}
+     ]},
+     {t:'Pest inspection',children:[
+       {t:'Termites + other pests',d:"the separate 'pest' half of building-and-pest"}
+     ]},
+     {t:'Cost & trust (~$400–800 combined)',children:[
+       {t:'Licensed · insured · independent',d:'independent of the seller and agent — that is what makes it worth paying for'}
+     ]},
+     {t:'Location hazards (NOT the inspector)',children:[
+       {t:'Flood & bushfire',d:'the two that genuinely matter in Australia'},
+       {t:'Found via council/planning searches',d:"hazard overlays, flood maps — the conveyancer's job"},
+       {t:'Earthquake/tsunami negligible here',d:'don’t over-index on them in the AU context'}
+     ]}
+   ]},
+   {t:'③ Enable the leverage',d:'financing',color:'fin',children:[
+     {t:'LMI — Lenders Mortgage Insurance',children:[
+       {t:'Triggered when deposit < 20%',d:'i.e. LVR over 80%'},
+       {t:'Protects the BANK, not you',d:'you pay the premium but get zero protection yourself'},
+       {t:'Premium is one-off, capitalised',d:'added onto the loan, not paid annually'},
+       {t:'Insurers: Helia & QBE',d:'Helia was formerly Genworth; the two main LMI providers in Australia'},
+       {t:"88% = PK's sweet spot",d:'LMI rises gently to 88% LVR, then spikes past 90%'}
+     ]},
+     {t:'On default — what actually happens',children:[
+       {t:'Bank repossesses & sells',d:'but has a legal duty to sell at fair market value — no deliberate fire-sale'},
+       {t:'Proceeds waterfall',d:'costs of sale → loan + default interest → surplus back to you → shortfall to LMI'},
+       {t:'Subrogation',d:'insurer pays the bank, inherits the debt, then chases YOU for the shortfall'},
+       {t:'Most defaults are involuntary',d:'job loss, illness, divorce, rate rises — not choice'}
+     ]},
+     {t:'Why your deposit size matters (to the bank)',children:[
+       {t:'Equity buffer vs price falls',d:'more cushion before a forced sale leaves them short'},
+       {t:'Skin in the game',d:"you're far less likely to walk from a house you've got money in"}
+     ]},
+     {t:'Serviceability — how much you can borrow',children:[
+       {t:'Start with income',d:'verified via payslips & tax returns'},
+       {t:'− HEM (living-cost floor)',d:'Household Expenditure Measure — used even if you claim you spend less'},
+       {t:'− existing commitments',d:'other loans, HECS, and credit-card LIMITS (count even if unused)'},
+       {t:'Test repayments at rate + 3%',d:'APRA serviceability buffer — a 6% loan is assessed at 9%'},
+       {t:'DTI check',d:'total debt ÷ gross income; 6+ is high-risk — the real ceiling on a portfolio'},
+       {t:'Credit history + genuine savings',d:'credit bureaus, plus evidence you saved the deposit'},
+       {t:'APRA = the bank regulator',d:'its buffer & DTI rules came in AFTER PK recorded → tighter today'}
+     ]},
+     {t:"The bank's own costs",children:[
+       {t:'Bank legal fees ~$100–300',d:'preparing the mortgage documents'},
+       {t:'Settlement ~$600 · cheque fee ~$15',d:'admin to attend settlement and move the money'}
+     ]}
+   ]},
+   {t:'④ Make it earn',d:'ready & tax',color:'earn',children:[
+     {t:'Get it tenant-ready',children:[
+       {t:'Cleaning ~$400–600',d:'before the tenant moves in; their responsibility after'},
+       {t:'Water efficiency test ~$200',d:'lets you pass water-usage charges to the tenant (e.g. QLD)'},
+       {t:'Removalist',d:'usually nil for an investment property'}
+     ]},
+     {t:'Depreciation schedule (QS, ~$550)',children:[
+       {t:'A tax tool, NOT a transaction cost',d:'different in kind from everything else here'},
+       {t:'Quantity surveyor produces the schedule',d:"lets you claim the building's depreciation as a deduction"},
+       {t:'Pays for itself',d:'yet ~90% of investors skip it and leave money on the table'}
+     ]},
+     {t:"Buyer's agent ($10–20k) — optional",children:[
+       {t:"PK says you won't need one",d:'the course teaches you to inspect, value and negotiate yourself'}
+     ]},
+     {t:'Ongoing: land tax (related)',children:[
+       {t:'State tax above a land-value threshold',d:"levied across your whole portfolio's land, not per property"},
+       {t:"Why it's the 'efficient' tax",d:"land can't be hidden or moved and its supply is fixed → taxing it barely distorts behaviour"},
+       {t:"Replaces stamp duty's volatility",d:'a steady annual bill vs duty that booms and busts'},
+       {t:"PK's model under-weights it",d:'a real holding cost the Quantum tool glosses over'}
+     ]}
+   ]}
+  ];
+  function node(n,depth){
+    var has=n.children&&n.children.length;
+    var w=document.createElement('div');
+    w.className='node d'+depth+(has?' haskids':' leaf');
+    if(depth===0&&n.color){var c=colors[n.color];w.style.cssText='--ac:'+c.ac+';--lt:'+c.lt+';--ik:'+c.ik;}
+    var h=document.createElement('div');h.className='head';
+    if(has){var car=document.createElement('span');car.className='car';car.textContent='▸';h.appendChild(car);}
+    else{var b=document.createElement('span');b.className='bul';b.textContent='–';h.appendChild(b);}
+    var t=document.createElement('span');t.className='ttl';t.textContent=n.t;
+    if(n.d){var d=document.createElement('span');d.className='det';d.textContent=' — '+n.d;t.appendChild(d);}
+    h.appendChild(t);w.appendChild(h);
+    if(has){
+      var k=document.createElement('div');k.className='kids';
+      n.children.forEach(function(ch){k.appendChild(node(ch,depth+1));});
+      w.appendChild(k);
+      if(depth===0)w.classList.add('open');
+      h.addEventListener('click',function(e){e.stopPropagation();w.classList.toggle('open');});
+    }
+    return w;
+  }
+  var root=document.getElementById('tctree');
+  tree.forEach(function(n){root.appendChild(node(n,0));});
+  document.getElementById('tcExpand').addEventListener('click',function(){
+    root.querySelectorAll('.node.haskids').forEach(function(x){x.classList.add('open');});});
+  document.getElementById('tcCollapse').addEventListener('click',function(){
+    root.querySelectorAll('.node.haskids').forEach(function(x){x.classList.remove('open');});
+    root.querySelectorAll('.node.d0').forEach(function(x){x.classList.add('open');});});
+})();
+</script>
+</body>
+</html>
